@@ -24,18 +24,21 @@ def is_science_question(question):
             messages=[
                 {
                     'role': 'system',
-                    'content': 'Answer ONLY YES or NO. Is this a science question?'
+                    'content': '''Classify the user's question.
+If it is about physics, chemistry, biology, astronomy, environment → reply SCIENCE.
+Otherwise → reply NOT_SCIENCE.
+Ignore words like "bullet", "points", "explain", "short", etc.'''
                 },
                 {'role': 'user', 'content': question}
             ],
-            max_tokens=3,
+            max_tokens=5,
             temperature=0,
         )
         verdict = check.choices[0].message.content.strip().upper()
-        return 'YES' in verdict
-    except Exception as e:
-        print(f'Groq Error: {e}')
-        return False
+        print("Verdict:", verdict)
+        return 'SCIENCE' in verdict
+    except:
+        return True # fallback (don't block user)
  
     # Layer 2: Groq double check
     try:
@@ -116,7 +119,12 @@ def chat():
     fmt = detect_format(user_message)
  
     # Clean format words
-    clean = user_message
+    clean = user_message.lower()
+
+# remove formatting words
+for p in ['bullet', 'points', 'list', 'short', 'brief',
+          'detailed', 'paragraph', 'numbered']:
+    clean = clean.replace(p, '')
     for p in ['in bullet points', 'in paragraph', 'in numbered list',
               'in short', 'in detail', 'as bullet points']:
         clean = clean.replace(p, '').strip()
