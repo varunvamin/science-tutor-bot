@@ -44,13 +44,12 @@ NOT_SCIENCE: math, coding, history, politics, sports, etc'''
 # ============================================
 def generate_answer(question, output_format='bullet'):
     formats = {
-        'bullet': 'Answer in bullet points.',
-        'paragraph': 'Answer in a paragraph.',
-        'numbered': 'Answer in numbered steps.',
-        'short': 'Give a short answer.',
-        'detailed': 'Give a detailed explanation.',
-    }
-
+    'bullet': 'Answer in simple bullet points using "-" only. No bold, no markdown.',
+    'paragraph': 'Answer in a clean paragraph without any markdown.',
+    'numbered': 'Answer as numbered list using 1. 2. 3. format. No markdown.',
+    'short': 'Give a very short 1-2 sentence answer. No formatting.',
+    'detailed': 'Give a detailed explanation in plain text. No markdown or symbols.'
+}
     instruction = formats.get(output_format, formats['bullet'])
 
     response = groq_client.chat.completions.create(
