@@ -1,20 +1,8 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
-import torch
  
 app = Flask(__name__)
- 
-# ============================================
-# Setup BART Classifier
-# ============================================
-print('Loading BART classifier...')
-classifier = pipeline(
-    'zero-shot-classification',
-    model='facebook/bart-large-mnli',
-    device=0 if torch.cuda.is_available() else -1
-)
-print('✅ Classifier loaded!')
  
 # ============================================
 # Setup Groq Client
@@ -30,23 +18,23 @@ SCIENCE_LABEL = 'a question about natural science including physics chemistry bi
 NON_SCIENCE_LABEL = 'a question about anything other than natural science such as mathematics history politics sports entertainment cooking geography literature religion finance technology computer science or general knowledge'
  
 def is_science_question(question):
-    """
-    Two-layer science classification:
-    Layer 1: BART zero-shot classification
-    Layer 2: Groq double verification
-    """
-    # Layer 1: BART
     try:
-        result = classifier(
-            question,
-            candidate_labels=[SCIENCE_LABEL, NON_SCIENCE_LABEL]
+        check = groq_client.chat.completions.create(
+            model='llama-3.3-70b-versatile',
+            messages=[
+                {
+                    'role': 'system',
+                    'content': 'Answer ONLY YES or NO. Is this a science question?'
+                },
+                {'role': 'user', 'content': question}
+            ],
+            max_tokens=3,
+            temperature=0,
         )
-        science_score = result['scores'][0] if result['labels'][0] == SCIENCE_LABEL else result['scores'][1]
-        print(f'BART Science Score: {science_score:.2f}')
-        if result['labels'][0] != SCIENCE_LABEL or result['scores'][0] <= 0.6:
-            return False
+        verdict = check.choices[0].message.content.strip().upper()
+        return 'YES' in verdict
     except Exception as e:
-        print(f'BART Error: {e}')
+        print(f'Groq Error: {e}')
         return False
  
     # Layer 2: Groq double check
