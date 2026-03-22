@@ -1,6 +1,3 @@
 flask
 groq
-transformers
-torch
-sentencepiece
 gunicorn
