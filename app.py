@@ -43,29 +43,36 @@ NOT_SCIENCE: math, coding, history, politics, sports, etc'''
 # Generate Answer
 # ============================================
 def generate_answer(question, output_format='bullet'):
-    formats = {
-    'bullet': 'Answer in simple bullet points using "-" only. No bold, no markdown.',
-    'paragraph': 'Answer in a clean paragraph without any markdown.',
-    'numbered': 'Answer as numbered list using 1. 2. 3. format. No markdown.',
-    'short': 'Give a very short 1-2 sentence answer. No formatting.',
-    'detailed': 'Give a detailed explanation in plain text. No markdown or symbols.'
-}
-    instruction = formats.get(output_format, formats['bullet'])
+    if output_format == 'bullet':
+        instruction = "Answer ONLY in bullet points. Each line must start with '•'. No paragraphs. No markdown."
+    elif output_format == 'paragraph':
+        instruction = "Answer in a single clean paragraph. Do NOT use bullet points or lists."
+    elif output_format == 'numbered':
+        instruction = "Answer ONLY as a numbered list (1. 2. 3.). No paragraphs."
+    elif output_format == 'short':
+        instruction = "Answer in 1-2 short sentences only."
+    elif output_format == 'detailed':
+        instruction = "Give a detailed explanation in multiple paragraphs."
+    else:
+        instruction = "Answer in a clean paragraph."
 
     response = groq_client.chat.completions.create(
         model='llama-3.3-70b-versatile',
         messages=[
             {
                 'role': 'system',
-                'content': f'You are a Science Tutor Bot. {instruction}'
+                'content': f'You are a strict Science Tutor Bot. {instruction}'
             },
-            {'role': 'user', 'content': question}
+            {
+                'role': 'user',
+                'content': question
+            }
         ],
         max_tokens=500,
-        temperature=0.3,
+        temperature=0.1,
     )
 
-    return response.choices[0].message.content
+    return response.choices[0].message.content.strip()
 
 # ============================================
 # Detect Format
@@ -119,6 +126,18 @@ def chat():
 
     # Generate answer
     answer = generate_answer(clean, fmt)
+
+# ===== FORMAT ENFORCEMENT =====
+if fmt == 'bullet':
+    lines = answer.split('\n')
+    answer = '\n'.join([f"• {line.lstrip('-•0123456789. ').strip()}" for line in lines if line.strip()])
+
+elif fmt == 'numbered':
+    lines = answer.split('\n')
+    answer = '\n'.join([f"{i+1}. {line.lstrip('-•0123456789. ').strip()}" for i, line in enumerate(lines) if line.strip()])
+
+elif fmt == 'paragraph':
+    answer = ' '.join(answer.split())  # remove line breaks
 
     return jsonify({'response': answer})
 
