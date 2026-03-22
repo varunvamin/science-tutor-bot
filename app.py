@@ -1,6 +1,5 @@
 import os
 from flask import Flask, render_template, request, jsonify
-from transformers import pipeline
 from groq import Groq
 import torch
  
