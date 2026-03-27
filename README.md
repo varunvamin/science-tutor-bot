@@ -1,48 +1,86 @@
-# 🔬 Science Tutor Bot - Web Application
+# 🔬 Science Tutor Bot
 
-## 📌 Overview
-Science Tutor Bot is an AI-powered web application that answers **only science-related questions**.  
-It uses the **Groq API with Llama 3.3 70B** to generate fast and intelligent responses.
-
-The bot supports multiple answer formats such as:
-- **Bullet Points**
-- **Numbered Points**
-- **Paragraph**
-- **Short Answer**
-- **Detailed Explanation**
-
-It also filters out non-science questions to keep the chatbot domain-specific.
+An AI-powered web application that answers **only science-related questions** in a clean, user-friendly interface.  
+It uses the **Groq API** with **Llama 3.3 70B Versatile** for fast and intelligent responses.
 
 ---
 
-## 🚀 Features
-- Answers only **science-related queries**
-- Fast AI responses using **Groq API**
-- Multiple output formats:
-  - Bullet
-  - Numbered
+## 📌 Overview
+
+Science Tutor Bot is designed as a **domain-specific educational assistant**.  
+Unlike a general chatbot, it is restricted to **science topics only**, such as:
+
+- Physics
+- Chemistry
+- Biology
+- Astronomy
+- Earth Science
+
+The application also supports multiple response formats and styles, making it useful for quick learning as well as detailed explanations.
+
+---
+
+## ✨ Features
+
+- ✅ Answers only **science-related questions**
+- ✅ Fast AI-generated responses using **Groq API**
+- ✅ Supports multiple output formats:
+  - Bullet Points
+  - Numbered Points
   - Paragraph
-- Multiple answer styles:
-  - Short
-  - Detailed
-- Rejects non-science questions
-- Can run **locally** or be **deployed online**
+- ✅ Supports multiple response styles:
+  - Short Answer
+  - Detailed Explanation
+- ✅ Rejects non-science questions
+- ✅ Runs locally and can also be deployed online
 
 ---
 
 ## 🛠️ Technologies Used
-- **Frontend:** HTML, CSS, JavaScript
-- **Backend:** Python, Flask
-- **AI API:** Groq
-- **Model Used:** Llama 3.3 70B Versatile
-- **Deployment:** Render (optional)
+
+### Frontend
+- HTML
+- CSS
+- JavaScript
+
+### Backend
+- Python
+- Flask
+
+### AI / API
+- Groq API
+- Llama 3.3 70B Versatile
+
+### Deployment
+- Render (optional)
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ How It Works
 
-### Step 1: Install dependencies
-Run the following command inside the project folder:
+### 1. User Input
+The user enters a question in the chatbot interface.
+
+### 2. Science Validation
+The bot first checks whether the question is related to science using the **Groq API**.
+
+### 3. Format & Style Detection
+The system detects the required:
+- **Format** → bullet / numbered / paragraph
+- **Style** → short / detailed
+
+### 4. AI Response Generation
+If the question is valid, the bot sends it to **Llama 3.3 70B Versatile** through Groq to generate the answer.
+
+### 5. Final Output
+The response is displayed to the user in the selected format and style.
+
+---
+
+## 🚀 Setup Instructions
+
+### Step 1: Install Dependencies
+Open the project folder in terminal / command prompt and run:
 
 ```bash
 pip install -r requirements.txt
