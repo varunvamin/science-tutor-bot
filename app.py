@@ -15,17 +15,47 @@ groq_client = Groq(api_key=GROQ_API_KEY)
 # ============================================
 def detect_format(message):
     m = message.lower()
-    if any(w in m for w in ['bullet', 'points', 'list']):
-        return 'bullet'
-    elif any(w in m for w in ['short', 'brief']):
-        return 'short'
-    elif any(w in m for w in ['detail', 'detailed']):
-        return 'detailed'
-    elif any(w in m for w in ['numbered', 'steps']):
+    if any(w in m for w in ['numbered', 'steps']):
         return 'numbered'
     elif any(w in m for w in ['paragraph', 'para']):
         return 'paragraph'
+    elif any(w in m for w in ['bullet', 'points', 'list']):
+        return 'bullet'
     return 'bullet'
+
+
+# ============================================
+# Detect Style
+# ============================================
+def detect_style(message):
+    m = message.lower()
+    if any(w in m for w in ['detail', 'detailed']):
+        return 'detailed'
+    elif any(w in m for w in ['short', 'brief']):
+        return 'short'
+    return 'normal'
+
+
+# ============================================
+# Convert Bullets to Numbers (Backup Fix)
+# ============================================
+def convert_bullets_to_numbers(text):
+    lines = text.split("\n")
+    new_lines = []
+    count = 1
+
+    for line in lines:
+        stripped = line.strip()
+
+        if stripped.startswith("•") or stripped.startswith("-") or stripped.startswith("*"):
+            content = stripped[1:].strip()
+            new_lines.append(f"{count}. {content}")
+            count += 1
+        else:
+            new_lines.append(line)
+
+    return "\n".join(new_lines)
+
 
 # ============================================
 # Check Science (Groq only)
@@ -55,35 +85,54 @@ def is_science_question(question):
         print("Classification Error:", e)
         return False
 
+
 # ============================================
 # Generate Answer
 # ============================================
-def generate_answer(question, fmt):
+def generate_answer(question, fmt, style):
 
+    # Format instruction
     if fmt == 'bullet':
-        instruction = "Answer ONLY in bullet points. Each line must start with '•'."
+        format_instruction = "Answer ONLY in bullet points. Each line must start with '•'."
     elif fmt == 'paragraph':
-        instruction = "Answer in a single clean paragraph."
+        format_instruction = "Answer ONLY in a single clean paragraph. Do NOT use bullet points or numbering."
     elif fmt == 'numbered':
-        instruction = "Answer ONLY as numbered steps (1. 2. 3.)."
-    elif fmt == 'short':
-        instruction = "Answer in 1-2 short sentences."
-    elif fmt == 'detailed':
-        instruction = "Give a detailed explanation."
+        format_instruction = "Answer ONLY in numbered points like 1. 2. 3. Do NOT use bullet points."
     else:
-        instruction = "Answer normally."
+        format_instruction = "Answer clearly."
+
+    # Style instruction
+    if style == 'short':
+        style_instruction = "Keep the answer short and concise."
+    elif style == 'detailed':
+        style_instruction = "Give a detailed explanation."
+    else:
+        style_instruction = "Answer normally."
 
     response = groq_client.chat.completions.create(
         model='llama-3.3-70b-versatile',
         messages=[
-            {'role': 'system', 'content': f'You are a Science Tutor Bot. {instruction}'},
-            {'role': 'user', 'content': question}
+            {
+                'role': 'system',
+                'content': f'You are a Science Tutor Bot. {format_instruction} {style_instruction}'
+            },
+            {
+                'role': 'user',
+                'content': question
+            }
         ],
-        max_tokens=500,
+        max_tokens=700,
         temperature=0.1
     )
 
-    return response.choices[0].message.content.strip()
+    answer = response.choices[0].message.content.strip()
+
+    # Backup fix: convert bullets to numbers if needed
+    if fmt == 'numbered':
+        answer = convert_bullets_to_numbers(answer)
+
+    return answer
+
 
 # ============================================
 # Routes
@@ -101,15 +150,16 @@ def chat():
     if not user_message:
         return jsonify({'response': 'Please ask a science question!'})
 
-    # Detect format
+    # Detect format and style
     fmt = detect_format(user_message)
+    style = detect_style(user_message)
 
     # Clean message
     clean = user_message.lower()
 
     for p in ['bullet', 'points', 'list', 'short', 'brief',
-              'detailed', 'paragraph', 'numbered',
-              'in bullet points', 'in paragraph', 'in short', 'in detail']:
+              'detailed', 'detail', 'paragraph', 'numbered', 'steps',
+              'in bullet points', 'in paragraph', 'in short', 'in detail', 'in numbered form']:
         clean = clean.replace(p, '').strip()
 
     # Check if science
@@ -117,7 +167,7 @@ def chat():
         return jsonify({'response': 'This chatbot only answers science-related questions.'})
 
     # Generate answer
-    answer = generate_answer(clean, fmt)
+    answer = generate_answer(clean, fmt, style)
 
     return jsonify({'response': answer})
 
@@ -128,9 +178,3 @@ def chat():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-
-
-
-
-
-
