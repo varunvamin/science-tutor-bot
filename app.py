@@ -65,11 +65,11 @@ def generate_answer(question, fmt):
     elif fmt == 'paragraph':
         instruction = "Answer in a single clean paragraph."
     elif fmt == 'detailed':
-        instruction = "Answer ONLY as numbered steps (1. 2. 3.)."
+        instruction = "Answer in detailed explanation."
     elif fmt == 'short':
         instruction = "Answer in 1-2 short sentences."
     elif fmt == 'numbered':
-        instruction = "Give a detailed explanation."
+        instruction = "Give a detailed explanation in numbered steps (1. 2. 3.)"
     else:
         instruction = "Answer normally."
 
