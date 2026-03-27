@@ -1,34 +1,48 @@
 # 🔬 Science Tutor Bot - Web Application
 
-## Setup Instructions
+## 📌 Overview
+Science Tutor Bot is an AI-powered web application that answers **only science-related questions**.  
+It uses the **Groq API with Llama 3.3 70B** to generate fast and intelligent responses.
+
+The bot supports multiple answer formats such as:
+- **Bullet Points**
+- **Numbered Points**
+- **Paragraph**
+- **Short Answer**
+- **Detailed Explanation**
+
+It also filters out non-science questions to keep the chatbot domain-specific.
+
+---
+
+## 🚀 Features
+- Answers only **science-related queries**
+- Fast AI responses using **Groq API**
+- Multiple output formats:
+  - Bullet
+  - Numbered
+  - Paragraph
+- Multiple answer styles:
+  - Short
+  - Detailed
+- Rejects non-science questions
+- Can run **locally** or be **deployed online**
+
+---
+
+## 🛠️ Technologies Used
+- **Frontend:** HTML, CSS, JavaScript
+- **Backend:** Python, Flask
+- **AI API:** Groq
+- **Model Used:** Llama 3.3 70B Versatile
+- **Deployment:** Render (optional)
+
+---
+
+## ⚙️ Setup Instructions
 
 ### Step 1: Install dependencies
-```
+Run the following command inside the project folder:
+
+```bash
 pip install -r requirements.txt
-```
-
-### Step 2: Add your Groq API key
-Open `app.py` and replace:
-```python
-GROQ_API_KEY = 'gsk_YOUR_KEY_HERE'
-```
-With your actual Groq API key from console.groq.com
-
-### Step 3: Run locally
-```
-python app.py
-```
-Open browser and go to: http://localhost:5000
-
-### Step 4: Deploy online (Render.com - Free)
-1. Push code to GitHub
-2. Go to render.com
-3. Click New → Web Service
-4. Connect your GitHub repo
-5. Set Start Command: `python app.py`
-6. Click Deploy!
-
-## How it works
-- BART zero-shot classification → detects if question is science
-- Groq double check → second verification
-- Llama 3.3 70B → generates the answer
