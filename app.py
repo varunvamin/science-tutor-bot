@@ -11,6 +11,23 @@ GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 groq_client = Groq(api_key=GROQ_API_KEY)
 
 # ============================================
+# Detect Format
+# ============================================
+def detect_format(message):
+    m = message.lower()
+    if any(w in m for w in ['bullet', 'points', 'list']):
+        return 'bullet'
+    elif any(w in m for w in ['short', 'brief']):
+        return 'short'
+    elif any(w in m for w in ['detail', 'detailed']):
+        return 'detailed'
+    elif any(w in m for w in ['numbered', 'steps']):
+        return 'numbered'
+    elif any(w in m for w in ['paragraph', 'para']):
+        return 'paragraph'
+    return 'bullet'
+
+# ============================================
 # Check Science (Groq only)
 # ============================================
 def is_science_question(question):
@@ -30,6 +47,7 @@ def is_science_question(question):
             max_tokens=5,
             temperature=0
         )
+
         verdict = check.choices[0].message.content.strip().upper()
         return 'YES' in verdict
 
@@ -41,18 +59,19 @@ def is_science_question(question):
 # Generate Answer
 # ============================================
 def generate_answer(question, fmt):
+
     if fmt == 'bullet':
         instruction = "Answer ONLY in bullet points. Each line must start with '•'."
     elif fmt == 'paragraph':
         instruction = "Answer in a single clean paragraph."
     elif fmt == 'numbered':
-        instruction = "Answer ONLY as a numbered list (1. 2. 3.). Do NOT use bullet points."
+        instruction = "Answer ONLY as numbered steps (1. 2. 3.)."
     elif fmt == 'short':
-        instruction = "Answer in 1-2 short sentences only."
+        instruction = "Answer in 1-2 short sentences."
     elif fmt == 'detailed':
-        instruction = "Give a very detailed and thorough explanation in paragraph form."
+        instruction = "Give a detailed explanation."
     else:
-        instruction = "Answer in bullet points."
+        instruction = "Answer normally."
 
     response = groq_client.chat.completions.create(
         model='llama-3.3-70b-versatile',
@@ -63,6 +82,7 @@ def generate_answer(question, fmt):
         max_tokens=500,
         temperature=0.1
     )
+
     return response.choices[0].message.content.strip()
 
 # ============================================
@@ -72,23 +92,35 @@ def generate_answer(question, fmt):
 def home():
     return render_template('index.html')
 
+
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.json
     user_message = data.get('message', '').strip()
-    # Get format directly from frontend — no more guessing from message text!
-    fmt = data.get('format', 'bullet').lower()
 
     if not user_message:
         return jsonify({'response': 'Please ask a science question!'})
 
+    # Detect format
+    fmt = detect_format(user_message)
+
+    # Clean message
+    clean = user_message.lower()
+
+    for p in ['bullet', 'points', 'list', 'short', 'brief',
+              'detailed', 'paragraph', 'numbered',
+              'in bullet points', 'in paragraph', 'in short', 'in detail']:
+        clean = clean.replace(p, '').strip()
+
     # Check if science
-    if not is_science_question(user_message):
+    if not is_science_question(clean):
         return jsonify({'response': 'This chatbot only answers science-related questions.'})
 
-    # Generate answer in the selected format
-    answer = generate_answer(user_message, fmt)
+    # Generate answer
+    answer = generate_answer(clean, fmt)
+
     return jsonify({'response': answer})
+
 
 # ============================================
 # Run
