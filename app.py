@@ -64,11 +64,11 @@ def generate_answer(question, fmt):
         instruction = "Answer ONLY in bullet points. Each line must start with '•'."
     elif fmt == 'paragraph':
         instruction = "Answer in a single clean paragraph."
-    elif fmt == 'numbered':
+    elif fmt == 'detailed':
         instruction = "Answer ONLY as numbered steps (1. 2. 3.)."
     elif fmt == 'short':
         instruction = "Answer in 1-2 short sentences."
-    elif fmt == 'detailed':
+    elif fmt == 'numbered':
         instruction = "Give a detailed explanation."
     else:
         instruction = "Answer normally."
