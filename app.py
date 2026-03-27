@@ -64,12 +64,12 @@ def generate_answer(question, fmt):
         instruction = "Answer ONLY in bullet points. Each line must start with '•'."
     elif fmt == 'paragraph':
         instruction = "Answer in a single clean paragraph."
-    elif fmt == 'detailed':
-        instruction = "Answer in detailed explanation."
+    elif fmt == 'numbered':
+        instruction = "Answer ONLY as numbered steps (1. 2. 3.)."
     elif fmt == 'short':
         instruction = "Answer in 1-2 short sentences."
-    elif fmt == 'numbered':
-        instruction = "Give a detailed explanation in numbered steps (1. 2. 3.)"
+    elif fmt == 'detailed':
+        instruction = "Give a detailed explanation."
     else:
         instruction = "Answer normally."
 
@@ -128,3 +128,9 @@ def chat():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
+
+
+
+
+
