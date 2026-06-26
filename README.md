@@ -4,15 +4,19 @@
 
 ### Step 1: Install dependencies
 ```
-pip install -r requirements.txt
+pip install -r requirements-local.txt
 ```
 
-### Step 2: Add your Groq API key
-Open `app.py` and replace:
-```python
-GROQ_API_KEY = 'gsk_YOUR_KEY_HERE'
+### Step 2: Set your Groq API key
+Set your Groq API key as an environment variable before running the app. 
+On Windows (PowerShell):
+```powershell
+$env:GROQ_API_KEY="your_api_key_here"
 ```
-With your actual Groq API key from console.groq.com
+On Mac/Linux:
+```bash
+export GROQ_API_KEY="your_api_key_here"
+```
 
 ### Step 3: Run locally
 ```
@@ -20,13 +24,14 @@ python app.py
 ```
 Open browser and go to: http://localhost:5000
 
-### Step 4: Deploy online (Render.com - Free)
-1. Push code to GitHub
-2. Go to render.com
-3. Click New → Web Service
-4. Connect your GitHub repo
-5. Set Start Command: `python app.py`
-6. Click Deploy!
+### Step 4: Deploy online (Vercel - Free)
+1. Push your code to GitHub.
+2. Go to [Vercel.com](https://vercel.com/) and click **Add New → Project**.
+3. Import your `science-tutor-bot` GitHub repository.
+4. In the configuration, open **Environment Variables** and add `GROQ_API_KEY` with your API key.
+5. Click **Deploy!**
+
+*Note: The app is configured to use the heavy PyTorch/BART model when run locally, but automatically switches to a lightweight, Groq-only serverless mode when deployed to Vercel to bypass the 250MB size limits.*
 
 ## How it works
 - BART zero-shot classification → detects if question is science
