@@ -1,5 +1,2 @@
 flask
 groq
-transformers
-torch
-sentencepiece

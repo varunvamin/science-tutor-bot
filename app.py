@@ -1,8 +1,13 @@
 from flask import Flask, render_template, request, jsonify
-from transformers import pipeline
 from groq import Groq
-import torch
 import os
+
+try:
+    from transformers import pipeline
+    import torch
+    HAS_LOCAL_MODEL = True
+except ImportError:
+    HAS_LOCAL_MODEL = False
 
 app = Flask(__name__)
 
@@ -10,12 +15,20 @@ app = Flask(__name__)
 # Setup BART Classifier
 # ============================================
 print('Loading BART classifier...')
-classifier = pipeline(
-    'zero-shot-classification',
-    model='facebook/bart-large-mnli',
-    device=0 if torch.cuda.is_available() else -1
-)
-print('✅ Classifier loaded!')
+classifier = None
+if HAS_LOCAL_MODEL:
+    try:
+        classifier = pipeline(
+            'zero-shot-classification',
+            model='facebook/bart-large-mnli',
+            device=0 if torch.cuda.is_available() else -1
+        )
+        print('✅ Classifier loaded!')
+    except Exception as e:
+        print(f'Failed to load BART classifier: {e}')
+        HAS_LOCAL_MODEL = False
+else:
+    print('Running in lightweight mode. BART classifier disabled.')
 
 # ============================================
 # Setup Groq Client
@@ -36,18 +49,21 @@ def is_science_question(question):
     Layer 2: Groq double verification
     """
     # Layer 1: BART
-    try:
-        result = classifier(
-            question,
-            candidate_labels=[SCIENCE_LABEL, NON_SCIENCE_LABEL]
-        )
-        science_score = result['scores'][0] if result['labels'][0] == SCIENCE_LABEL else result['scores'][1]
-        print(f'BART Science Score: {science_score:.2f}')
-        if result['labels'][0] != SCIENCE_LABEL or result['scores'][0] <= 0.6:
+    if HAS_LOCAL_MODEL and classifier is not None:
+        try:
+            result = classifier(
+                question,
+                candidate_labels=[SCIENCE_LABEL, NON_SCIENCE_LABEL]
+            )
+            science_score = result['scores'][0] if result['labels'][0] == SCIENCE_LABEL else result['scores'][1]
+            print(f'BART Science Score: {science_score:.2f}')
+            if result['labels'][0] != SCIENCE_LABEL or result['scores'][0] <= 0.6:
+                return False
+        except Exception as e:
+            print(f'BART Error: {e}')
             return False
-    except Exception as e:
-        print(f'BART Error: {e}')
-        return False
+    else:
+        print('Skipping BART classification (lightweight mode)')
 
     # Layer 2: Groq double check
     try:
