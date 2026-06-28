@@ -1,6 +1,14 @@
 # 🔬 Science Tutor Bot - Web Application
 
-## Setup Instructions
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white" />
+  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" />
+</p>
+
+An intelligent web application that uses Llama 3.3 and BART zero-shot classification to accurately identify and answer science-related questions, while politely rejecting off-topic queries.
+
+## ⚙️ Setup Instructions
 
 ### Step 1: Install dependencies
 ```
@@ -33,7 +41,10 @@ Open browser and go to: http://localhost:5000
 
 *Note: The app is configured to use the heavy PyTorch/BART model when run locally, but automatically switches to a lightweight, Groq-only serverless mode when deployed to Vercel to bypass the 250MB size limits.*
 
-## How it works
-- BART zero-shot classification → detects if question is science
-- Groq double check → second verification
-- Llama 3.3 70B → generates the answer
+## 🧠 How it works
+- **BART zero-shot classification** → detects if question is science
+- **Groq double check** → second verification
+- **Llama 3.3 70B** → generates the answer
+
+## 📝 License
+This project is open-source and available under the [MIT License](LICENSE).
