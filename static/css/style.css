@@ -282,6 +282,28 @@ header {
     border: 1px solid var(--border-light);
     border-top-left-radius: 8px;
     color: var(--text-dark);
+    position: relative;
+    padding-right: 48px; /* Room for copy button */
+}
+
+.copy-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.bot .bubble:hover .copy-btn {
+    opacity: 1;
+}
+
+.copy-btn:hover {
+    transform: scale(1.1);
 }
 
 .bot .bubble ul { padding-left: 24px; margin: 12px 0; }

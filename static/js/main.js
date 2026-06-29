@@ -49,6 +49,18 @@ function addMessage(text, isUser) {
             bubble.innerHTML = formatted.includes('<li>') 
                 ? `<ul>${formatted}</ul>` 
                 : `<p>${text}</p>`;
+
+            // Add copy button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.innerHTML = '📋';
+            copyBtn.title = 'Copy to clipboard';
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(text);
+                copyBtn.innerHTML = '✅';
+                setTimeout(() => copyBtn.innerHTML = '📋', 2000);
+            };
+            bubble.appendChild(copyBtn);
         }
     }
 
