@@ -1,119 +1,12 @@
 from flask import Flask, render_template, request, jsonify
-from groq import Groq
-import os
-
-try:
-    from transformers import pipeline
-    import torch
-    HAS_LOCAL_MODEL = True
-except ImportError:
-    HAS_LOCAL_MODEL = False
+from services.llm_service import LLMService
+from services.classifier_service import ClassifierService
 
 app = Flask(__name__)
 
-# ============================================
-# Setup BART Classifier
-# ============================================
-print('Loading BART classifier...')
-classifier = None
-if HAS_LOCAL_MODEL:
-    try:
-        classifier = pipeline(
-            'zero-shot-classification',
-            model='facebook/bart-large-mnli',
-            device=0 if torch.cuda.is_available() else -1
-        )
-        print('✅ Classifier loaded!')
-    except Exception as e:
-        print(f'Failed to load BART classifier: {e}')
-        HAS_LOCAL_MODEL = False
-else:
-    print('Running in lightweight mode. BART classifier disabled.')
-
-# ============================================
-# Setup Groq Client
-# ============================================
-GROQ_API_KEY = os.environ.get('GROQ_API_KEY', 'your_api_key_here')
-groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY != 'your_api_key_here' else None
-
-# ============================================
-# Science Classification Labels
-# ============================================
-SCIENCE_LABEL = 'a question about natural science including physics chemistry biology astronomy earth science or environmental science'
-NON_SCIENCE_LABEL = 'a question about anything other than natural science such as mathematics history politics sports entertainment cooking geography literature religion finance technology computer science or general knowledge'
-
-def is_science_question(question):
-    """
-    Two-layer science classification:
-    Layer 1: BART zero-shot classification
-    Layer 2: Groq double verification
-    """
-    # Layer 1: BART
-    if HAS_LOCAL_MODEL and classifier is not None:
-        try:
-            result = classifier(
-                question,
-                candidate_labels=[SCIENCE_LABEL, NON_SCIENCE_LABEL]
-            )
-            science_score = result['scores'][0] if result['labels'][0] == SCIENCE_LABEL else result['scores'][1]
-            print(f'BART Science Score: {science_score:.2f}')
-            if result['labels'][0] != SCIENCE_LABEL or result['scores'][0] <= 0.6:
-                return False
-        except Exception as e:
-            print(f'BART Error: {e}')
-            return False
-    else:
-        print('Skipping BART classification (lightweight mode)')
-
-    # Layer 2: Groq double check
-    try:
-        check = groq_client.chat.completions.create(
-            model='llama-3.3-70b-versatile',
-            messages=[
-                {
-                    'role': 'system',
-                    'content': '''You are a strict science topic classifier.
-Answer with ONLY one word: SCIENCE or NOT_SCIENCE.
-SCIENCE topics: physics, chemistry, biology, astronomy, earth science, environmental science.
-NOT_SCIENCE topics: mathematics, coding, history, politics, sports, entertainment, cooking, geography, literature, religion, finance, general knowledge.
-Be strict - mathematics and coding are NOT science!'''
-                },
-                {'role': 'user', 'content': question}
-            ],
-            max_tokens=5,
-            temperature=0,
-        )
-        verdict = check.choices[0].message.content.strip().upper()
-        print(f'Groq Verdict: {verdict}')
-        return 'NOT_SCIENCE' not in verdict
-    except Exception as e:
-        print(f'Groq Error: {e}')
-        return False
-
-def generate_answer(question, output_format='bullet'):
-    """Generate science answer using Groq Llama 3"""
-    formats = {
-        'bullet':    'Answer in bullet points only. Each point starting with •',
-        'paragraph': 'Answer in a clear paragraph.',
-        'numbered':  'Answer as a numbered list.',
-        'short':     'Give a very short one or two sentence answer.',
-        'detailed':  'Give a very detailed and thorough answer.',
-    }
-    instruction = formats.get(output_format, formats['bullet'])
-
-    response = groq_client.chat.completions.create(
-        model='llama-3.3-70b-versatile',
-        messages=[
-            {
-                'role': 'system',
-                'content': f'You are a Science Tutor Bot. {instruction}'
-            },
-            {'role': 'user', 'content': question}
-        ],
-        max_tokens=500,
-        temperature=0.3,
-    )
-    return response.choices[0].message.content
+# Initialize services
+llm_service = LLMService()
+classifier_service = ClassifierService()
 
 def detect_format(message):
     """Detect desired output format from user message"""
@@ -143,18 +36,23 @@ def chat():
     # Detect format
     fmt = detect_format(user_message)
 
-    # Clean format words
+    # Clean format words for cleaner classification
     clean = user_message
     for p in ['in bullet points', 'in paragraph', 'in numbered list',
               'in short', 'in detail', 'as bullet points']:
         clean = clean.replace(p, '').strip()
 
-    # Check if science
-    if not is_science_question(clean):
+    # Two-layer science classification check
+    # Layer 1: BART (if available)
+    if not classifier_service.is_science_question(clean):
+        return jsonify({'response': 'This chatbot only answers science-related questions.'})
+
+    # Layer 2: Groq double check
+    if not llm_service.verify_science_topic(clean):
         return jsonify({'response': 'This chatbot only answers science-related questions.'})
 
     # Generate answer
-    answer = generate_answer(clean, fmt)
+    answer = llm_service.generate_answer(clean, fmt)
     return jsonify({'response': answer})
 
 if __name__ == '__main__':
