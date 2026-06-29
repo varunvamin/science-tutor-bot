@@ -1,7 +1,8 @@
 :root {
     --grad-peach: #ffcba4;
     --grad-purple: #a78bfa;
-    --bg-white: #ffffff;
+    --bg-main: #ffffff;
+    --surface-color: #ffffff;
     --text-dark: #111827;
     --text-light: #9ca3af;
     --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.05);
@@ -9,11 +10,19 @@
     --border-light: #f3f4f6;
 }
 
+body.dark-theme {
+    --bg-main: #111827;
+    --surface-color: #1f2937;
+    --text-dark: #f9fafb;
+    --border-light: #374151;
+    --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg-white);
+    background: var(--bg-main);
     color: var(--text-dark);
     height: 100vh;
     display: flex;
@@ -64,7 +73,7 @@ header {
 .logo {
     width: 48px;
     height: 48px;
-    background: #ffffff;
+    background: var(--surface-color);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -97,7 +106,7 @@ header {
     font-size: 14px;
     font-weight: 600;
     color: var(--text-dark);
-    background: #ffffff;
+    background: var(--surface-color);
     padding: 10px 18px;
     border-radius: 30px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
@@ -112,7 +121,7 @@ header {
 }
 
 .clear-btn {
-    background: #ffffff;
+    background: var(--surface-color);
     border: 1px solid var(--border-light);
     color: var(--text-dark);
     width: 40px;
@@ -126,6 +135,28 @@ header {
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     transition: all 0.2s ease;
     margin-left: 8px;
+}
+
+.theme-btn {
+    background: var(--surface-color);
+    border: 1px solid var(--border-light);
+    color: var(--text-dark);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    margin-left: 8px;
+}
+
+.theme-btn:hover {
+    background: var(--border-light);
+    transform: scale(1.05);
 }
 
 .clear-btn:hover {
@@ -166,7 +197,7 @@ header {
 }
 
 .welcome-pill {
-    background: #ffffff;
+    background: var(--surface-color);
     padding: 10px 24px;
     border-radius: 30px;
     font-size: 13px;
@@ -212,7 +243,7 @@ header {
 
 .chip {
     padding: 14px 24px;
-    background: #ffffff;
+    background: var(--surface-color);
     border: 1px solid var(--border-light);
     border-radius: 30px;
     font-size: 15px;
@@ -256,7 +287,7 @@ header {
     font-size: 20px;
     flex-shrink: 0;
     box-shadow: var(--shadow-subtle);
-    background: #ffffff;
+    background: var(--surface-color);
     border: 1px solid var(--border-light);
     color: var(--text-dark);
 }
@@ -278,31 +309,33 @@ header {
 }
 
 .bot .bubble {
-    background: #ffffff;
+    background: var(--surface-color);
     border: 1px solid var(--border-light);
     border-top-left-radius: 8px;
     color: var(--text-dark);
     position: relative;
-    padding-right: 48px; /* Room for copy button */
+    padding-right: 70px; /* Room for copy & tts buttons */
 }
 
-.copy-btn {
+.action-btn {
     position: absolute;
     top: 12px;
-    right: 12px;
     background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     opacity: 0.5;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
 }
 
-.bot .bubble:hover .copy-btn {
+.copy-btn { right: 12px; }
+.tts-btn { right: 38px; }
+
+.bot .bubble:hover .action-btn {
     opacity: 1;
 }
 
-.copy-btn:hover {
+.action-btn:hover {
     transform: scale(1.1);
 }
 
@@ -335,7 +368,7 @@ header {
     position: relative;
     z-index: 10;
     padding: 24px 32px 32px;
-    background: linear-gradient(to top, #ffffff 80%, rgba(255,255,255,0));
+    background: linear-gradient(to top, var(--bg-main) 80%, rgba(255,255,255,0));
     border: none;
 }
 
@@ -345,7 +378,7 @@ header {
     align-items: center;
     max-width: 900px;
     margin: 0 auto;
-    background: #ffffff;
+    background: var(--surface-color);
     padding: 10px 10px 10px 24px;
     border-radius: 40px;
     border: 1px solid var(--border-light);
@@ -359,7 +392,7 @@ header {
 }
 
 .format-select {
-    background: #f9fafb;
+    background: var(--bg-main);
     border: none;
     color: var(--text-dark);
     padding: 10px 16px;

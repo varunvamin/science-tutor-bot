@@ -1,5 +1,14 @@
 let chatHistory = [];
 
+document.addEventListener('DOMContentLoaded', () => {
+    // Load theme preference
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-theme');
+        const themeBtn = document.getElementById('themeBtn');
+        if(themeBtn) themeBtn.innerHTML = '☀️';
+    }
+});
+
 function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
@@ -15,6 +24,60 @@ function handleKey(e) {
 function clearChat() {
     // A full reload ensures the state is completely reset and the welcome message returns
     window.location.reload();
+}
+
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.getElementById('themeBtn');
+    if (body.classList.contains('dark-theme')) {
+        body.classList.remove('dark-theme');
+        localStorage.setItem('theme', 'light');
+        if (btn) btn.innerHTML = '🌙';
+    } else {
+        body.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark');
+        if (btn) btn.innerHTML = '☀️';
+    }
+}
+
+function exportChat() {
+    if (chatHistory.length === 0) return alert("No chat history to export yet!");
+    let content = "🔬 Science Tutor Bot - Chat Export\n\n";
+    chatHistory.forEach(msg => {
+        const role = msg.role === 'user' ? 'You' : 'Tutor';
+        // Clean up format tags from user messages
+        const text = msg.content.replace(/ \(.*? format\)$/, '');
+        content += `${role}:\n${text}\n\n`;
+    });
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'science-tutor-notes.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function readAloud(text, btn) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        // Remove HTML tags for reading
+        const plainText = text.replace(/<[^>]+>/g, '');
+        const utterance = new SpeechSynthesisUtterance(plainText);
+        
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '🔊';
+        btn.style.opacity = '1';
+        
+        utterance.onend = () => {
+            btn.innerHTML = originalText;
+            btn.style.opacity = '';
+        };
+        
+        window.speechSynthesis.speak(utterance);
+    } else {
+        alert("Text-to-speech is not supported in your browser.");
+    }
 }
 
 function sendExample(text) {
@@ -54,7 +117,7 @@ function addMessage(text, isUser) {
 
             // Add copy button
             const copyBtn = document.createElement('button');
-            copyBtn.className = 'copy-btn';
+            copyBtn.className = 'action-btn copy-btn';
             copyBtn.innerHTML = '📋';
             copyBtn.title = 'Copy to clipboard';
             copyBtn.onclick = () => {
@@ -63,6 +126,14 @@ function addMessage(text, isUser) {
                 setTimeout(() => copyBtn.innerHTML = '📋', 2000);
             };
             bubble.appendChild(copyBtn);
+
+            // Add text-to-speech button
+            const ttsBtn = document.createElement('button');
+            ttsBtn.className = 'action-btn tts-btn';
+            ttsBtn.innerHTML = '🔈';
+            ttsBtn.title = 'Read aloud';
+            ttsBtn.onclick = () => readAloud(bubble.innerHTML, ttsBtn);
+            bubble.appendChild(ttsBtn);
         }
     }
 
