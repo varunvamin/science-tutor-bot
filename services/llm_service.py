@@ -5,11 +5,25 @@ from config import Config
 logger = logging.getLogger(__name__)
 
 class LLMService:
+    """
+    Service class for interacting with the Groq Large Language Model API.
+    Handles the generation of tutor responses and secondary classification checks.
+    """
     def __init__(self):
+        """Initializes the LLM service with the Groq API key from configuration."""
         self.client = Groq(api_key=Config.GROQ_API_KEY) if Config.GROQ_API_KEY != 'your_api_key_here' else None
 
     def generate_answer(self, question, output_format='bullet'):
-        """Generate science answer using Groq Llama 3"""
+        """
+        Generates a science-focused answer using the Groq API.
+        
+        Args:
+            question (str): The user's science question.
+            output_format (str): The requested formatting style (e.g., 'bullet', 'paragraph').
+            
+        Returns:
+            str: The generated response or an error message.
+        """
         if not self.client:
             return "Error: Groq API key is missing or invalid."
             
@@ -34,7 +48,16 @@ class LLMService:
             return "Sorry, I encountered an error generating an answer."
 
     def verify_science_topic(self, question):
-        """Use LLM as a secondary check if it's a science topic"""
+        """
+        Acts as a secondary check to verify if a topic is science-related.
+        Used as a fallback when the local BART classifier is unsure or unavailable.
+        
+        Args:
+            question (str): The user's question to verify.
+            
+        Returns:
+            bool: True if it's a science topic, False otherwise.
+        """
         if not self.client:
             return False
             

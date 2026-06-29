@@ -4,7 +4,12 @@ from config import Config
 logger = logging.getLogger(__name__)
 
 class ClassifierService:
+    """
+    Service class for zero-shot text classification using a local HuggingFace pipeline.
+    Used to quickly filter out non-science questions before calling the external LLM API.
+    """
     def __init__(self):
+        """Initializes the BART zero-shot classifier if the transformers library and model are available."""
         self.has_local_model = False
         self.classifier = None
         
@@ -27,7 +32,16 @@ class ClassifierService:
             self.has_local_model = False
 
     def is_science_question(self, question):
-        """Use BART zero-shot classification as a first layer check"""
+        """
+        Uses the local BART zero-shot classifier to determine if a question is science-related.
+        
+        Args:
+            question (str): The user's question.
+            
+        Returns:
+            bool: True if the question is likely science-related or if the local model is unavailable.
+                  False if the model is highly confident it is not science.
+        """
         if self.has_local_model and self.classifier is not None:
             try:
                 result = self.classifier(

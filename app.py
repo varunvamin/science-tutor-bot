@@ -17,7 +17,15 @@ llm_service = LLMService()
 classifier_service = ClassifierService()
 
 def detect_format(message):
-    """Detect desired output format from user message"""
+    """
+    Detects the desired output format based on keywords in the user's message.
+    
+    Args:
+        message (str): The raw input message from the user.
+        
+    Returns:
+        str: A keyword representing the requested format (e.g., 'bullet', 'paragraph').
+    """
     m = message.lower()
     if any(w in m for w in ['bullet', 'points', 'list']): return 'bullet'
     elif any(w in m for w in ['short', 'brief', 'quick']): return 'short'
