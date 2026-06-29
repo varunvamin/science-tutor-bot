@@ -40,6 +40,10 @@ def chat():
 
     if not user_message:
         return jsonify({'response': 'Please ask a science question!'})
+        
+    if len(user_message) > 1000:
+        logger.warning(f"Message too long: {len(user_message)} characters")
+        return jsonify({'response': 'Your question is too long. Please keep it under 1000 characters.'})
 
     # Detect format
     fmt = detect_format(user_message)
