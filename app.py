@@ -1,6 +1,14 @@
 from flask import Flask, render_template, request, jsonify
+import logging
 from services.llm_service import LLMService
 from services.classifier_service import ClassifierService
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 

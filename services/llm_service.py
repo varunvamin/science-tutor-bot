@@ -1,5 +1,8 @@
 from groq import Groq
+import logging
 from config import Config
+
+logger = logging.getLogger(__name__)
 
 class LLMService:
     def __init__(self):
@@ -27,7 +30,7 @@ class LLMService:
             )
             return response.choices[0].message.content
         except Exception as e:
-            print(f'Groq Error generating answer: {e}')
+            logger.error(f'Groq Error generating answer: {e}')
             return "Sorry, I encountered an error generating an answer."
 
     def verify_science_topic(self, question):
@@ -49,8 +52,8 @@ class LLMService:
                 temperature=0,
             )
             verdict = check.choices[0].message.content.strip().upper()
-            print(f'Groq Verdict: {verdict}')
+            logger.info(f'Groq Verdict: {verdict}')
             return 'NOT_SCIENCE' not in verdict
         except Exception as e:
-            print(f'Groq Error verifying topic: {e}')
+            logger.error(f'Groq Error verifying topic: {e}')
             return False
