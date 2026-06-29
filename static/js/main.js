@@ -10,6 +10,11 @@ function handleKey(e) {
     }
 }
 
+function clearChat() {
+    // A full reload ensures the state is completely reset and the welcome message returns
+    window.location.reload();
+}
+
 function sendExample(text) {
     document.getElementById('messageInput').value = text;
     sendMessage();
