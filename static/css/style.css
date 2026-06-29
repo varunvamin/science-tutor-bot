@@ -111,6 +111,29 @@ header {
     box-shadow: 0 0 10px #10b981;
 }
 
+.clear-btn {
+    background: #ffffff;
+    border: 1px solid var(--border-light);
+    color: var(--text-dark);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    margin-left: 8px;
+}
+
+.clear-btn:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    transform: scale(1.05);
+}
+
 /* Chat area */
 .chat-container {
     position: relative;
