@@ -1,3 +1,5 @@
+let chatHistory = [];
+
 function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
@@ -107,6 +109,9 @@ async function sendMessage() {
     // Add format hint to message
     const fullMessage = message + (format !== 'bullet' ? ` (${format} format)` : '');
 
+    // Add to history
+    chatHistory.push({ role: 'user', content: fullMessage });
+
     addMessage(message, true);
     input.value = '';
     input.style.height = 'auto';
@@ -117,9 +122,13 @@ async function sendMessage() {
         const response = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: fullMessage })
+            body: JSON.stringify({ message: fullMessage, history: chatHistory })
         });
         const data = await response.json();
+        
+        // Add bot response to history
+        chatHistory.push({ role: 'assistant', content: data.response });
+        
         removeTyping();
         addMessage(data.response, false);
     } catch (error) {

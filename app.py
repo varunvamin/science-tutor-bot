@@ -45,6 +45,7 @@ def home():
 def chat():
     data = request.json
     user_message = data.get('message', '').strip()
+    chat_history = data.get('history', [])
 
     if not user_message:
         return jsonify({'response': 'Please ask a science question!'})
@@ -71,8 +72,8 @@ def chat():
     if not llm_service.verify_science_topic(clean):
         return jsonify({'response': 'This chatbot only answers science-related questions.'})
 
-    # Generate answer
-    answer = llm_service.generate_answer(clean, fmt)
+    # Generate answer with history
+    answer = llm_service.generate_answer(chat_history, fmt)
     return jsonify({'response': answer})
 
 if __name__ == '__main__':
